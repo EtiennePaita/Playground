@@ -4,6 +4,13 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 /**
+ *
+ * This file centralize all the navigation destinations by
+ * overriding [NavKey]
+ *
+ */
+
+/**
  * NavKey for SplashScreen destination
  */
 @Serializable

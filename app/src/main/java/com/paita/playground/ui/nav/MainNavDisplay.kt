@@ -2,6 +2,8 @@ package com.paita.playground.ui.nav
 
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,17 +12,18 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import com.paita.playground.ui.screens.HomeScreen
 import com.paita.playground.ui.screens.SplashScreen
 import com.paita.playground.ui.theme.playgroundBackground
 
 @Composable
-fun AppNavDisplay() {
+fun MainNavDisplay() {
     val backStack = rememberNavBackStack(Splash)
 
-    LaunchedEffect(backStack.size) {
-        backStack.log()
+    LaunchedEffect(backStack.logString()) {
+        Log.d("[BackStack]",backStack.logString())
     }
 
     fun navigateTo(
@@ -30,39 +33,57 @@ fun AppNavDisplay() {
         strategy.navigate(backStack, key)
     }
 
-    NavDisplay(
+    Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .playgroundBackground(),
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
-        entryProvider = { key ->
-            when (key) {
-                is Splash -> NavEntry(key) {
-                    SplashScreen(
-                        navigateToHome = {
-                            navigateTo(
-                                Home,
-                                strategy = NavStrategy.PopUpTo(
-                                    Splash,
-                                    true
+    ) { innerPadding ->
+        NavDisplay(
+            modifier = Modifier
+                .fillMaxSize()
+                .playgroundBackground()
+                .padding(innerPadding),
+            backStack = backStack,
+            onBack = { backStack.removeLastOrNull() },
+            entryProvider = { key ->
+                when (key) {
+                    is Splash -> NavEntry(key) {
+                        SplashScreen(
+                            navigateToHome = {
+                                navigateTo(
+                                    Home,
+                                    strategy = NavStrategy.SingleTop
+                                    /*strategy = NavStrategy.PopUpTo(
+                                        Splash,
+                                        true
+                                    )*/
                                 )
-                            )
-                        }
-                    )
+                            },
+                            animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                        )
+                    }
+
+                    is Home -> NavEntry(key) {
+                        HomeScreen(
+                            animatedVisibilityScope = LocalNavAnimatedContentScope.current
+                        )
+                    }
+
+                    else -> NavEntry(object : NavKey {}) { Text("Unknown route") }
                 }
-                is Home -> NavEntry(key) {
-                    HomeScreen()
-                }
-                else -> NavEntry(object : NavKey {}) { Text("Unknown route") }
             }
-        }
-    )
+        )
+    }
 
 
 }
 
-
+/**
+ * Defines all the navigation strategies for this application.
+ *
+ * All the subclasses must implement the [navigate] method to handle
+ * the elements of the navigation backstack.
+ *
+ */
 sealed interface NavStrategy {
 
     /**
@@ -141,12 +162,12 @@ sealed interface NavStrategy {
     }
 }
 
-private fun NavBackStack<NavKey>.log() {
+private fun NavBackStack<NavKey>.logString() : String {
     var backStackString = "["
     this.forEach { key ->
         backStackString += "${key.javaClass.simpleName}, "
     }
     backStackString += "]"
 
-    Log.d("[BackStack]",backStackString)
+    return backStackString
 }

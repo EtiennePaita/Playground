@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.paita.playground.ui.nav.AppNavDisplay
+import com.paita.playground.ui.App
+import com.paita.playground.ui.nav.MainNavDisplay
 import com.paita.playground.ui.theme.PlaygroundTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +14,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PlaygroundTheme {
-                AppNavDisplay()
+                App {
+                    MainNavDisplay()
+                }
             }
         }
     }
